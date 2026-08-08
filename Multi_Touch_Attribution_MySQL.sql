@@ -197,3 +197,65 @@ JOIN (
     GROUP BY channel
 ) AS lw ON cs.channel = lw.channel
 ORDER BY ROAS DESC;
+
+CREATE TABLE dim_channel (
+    channel_id INT AUTO_INCREMENT PRIMARY KEY,
+    channel_name VARCHAR(50) UNIQUE
+);
+
+CREATE TABLE dim_campaign (
+    campaign_id INT AUTO_INCREMENT PRIMARY KEY,
+    campaign_name VARCHAR(50) UNIQUE
+);
+
+INSERT INTO dim_channel (channel_name)
+SELECT DISTINCT channel FROM interactions;
+
+INSERT INTO dim_campaign (campaign_name)
+SELECT DISTINCT campaign FROM interactions;
+
+SELECT * FROM dim_channel;
+SELECT * FROM dim_campaign;
+
+CREATE TABLE fact_interactions (
+    fact_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    timestamp DATETIME,
+    channel_id INT,
+    campaign_id INT,
+    conversion TINYINT,
+    FOREIGN KEY (channel_id) REFERENCES dim_channel(channel_id),
+    FOREIGN KEY (campaign_id) REFERENCES dim_campaign(campaign_id)
+);
+
+INSERT INTO fact_interactions (user_id, timestamp, channel_id, campaign_id, conversion)
+SELECT 
+    i.user_id,
+    i.timestamp,
+    dc.channel_id,
+    dcamp.campaign_id,
+    i.conversion
+FROM interactions i
+JOIN dim_channel dc ON i.channel = dc.channel_name
+JOIN dim_campaign dcamp ON i.campaign = dcamp.campaign_name;
+
+SELECT COUNT(*) FROM fact_interactions;
+
+ALTER TABLE channel_spend ADD COLUMN channel_id INT;
+
+SET SQL_SAFE_UPDATES = 0;
+
+UPDATE channel_spend cs
+JOIN dim_channel dc ON cs.channel = dc.channel_name
+SET cs.channel_id = dc.channel_id;
+
+SELECT * FROM channel_spend;
+
+CREATE TABLE attribution_weights (
+    user_id INT,
+    channel_id INT,
+    campaign_id INT,
+    attribution_model VARCHAR(20),
+    attribution_weight DECIMAL(5,4)
+);
+
