@@ -67,7 +67,6 @@ ROI Scatter Plot — CAC (x) vs ROAS (y) by channel, with trendline
 Channel Comparison Bar Chart — total spend by channel
 Attribution Model Toggle — slicer switching between First-Touch / Last-Touch / Linear, driving a live weighted bar chart
 
-Show Image
 <img width="994" height="574" alt="Screenshot 2026-08-18 161505" src="https://github.com/user-attachments/assets/990e041a-70ae-4e1a-80ee-fe79b18165e2" />
 
 Key Takeaways
